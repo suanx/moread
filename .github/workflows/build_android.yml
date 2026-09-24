@@ -1,0 +1,65 @@
+name: build-android
+
+# 产出 Android APK（release）。
+# 说明：本仓库只维护 lib/ + 配置，原生工程在 CI 中由 flutter create 脚手架生成，
+# 因此不会覆盖已有的 lib/main.dart。
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      build_aab:
+        description: '同时构建 AAB（上架用）'
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Scaffold native projects
+        run: |
+          set -e
+          flutter create --project-name moread --org com.moread \
+            --platforms=android /tmp/scaffold
+          cp -r /tmp/scaffold/android .
+          # 补充 Release 签名占位（默认使用 debug key，保证可安装）
+          if [ ! -f android/key.properties ]; then
+            echo "android/key.properties not provided; using default signing" >&2
+          fi
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code (drift)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build APK
+        run: flutter build apk --release --split-per-abi
+
+      - name: Build AAB
+        if: ${{ github.event.inputs.build_aab == 'true' || startsWith(github.ref, 'refs/tags/v') }}
+        run: flutter build appbundle --release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: |
+            build/app/outputs/flutter-apk/*.apk
+            build/app/outputs/bundle/release/*.aab
+          if-no-files-found: warn

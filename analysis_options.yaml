@@ -1,0 +1,26 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # 允许在 build_runner 生成前存在 missing part 文件
+    missing_part_of_part_file: ignore
+    uri_does_not_exist: ignore
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - build/**
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_empty_else
+    - avoid_print
+    - cancel_subscriptions
+    - close_sinks
+    - directives_ordering
+    - prefer_const_constructors
+    - prefer_final_fields
+    - prefer_single_quotes
+    - sort_child_properties_last
+    - unawaited_futures
+    - use_build_context_synchronously

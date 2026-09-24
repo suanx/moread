@@ -1,0 +1,44 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+*.log
+
+# 生成代码（CI 与本地均通过 build_runner 生成）
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# Flutter 插件生成
+.flutter-plugins
+.flutter-plugins-dependencies
+.idea/
+.vscode/
+*.iml
+
+# 原生构建
+android/.gradle/
+android/local.properties
+android/app/debug
+android/app/profile
+android/app/release
+android/key.properties
+ios/Pods/
+ios/*.xcworkspace/xcuserdata/
+ios/Runner.xcodeproj/xcuserdata/
+macos/Pods/
+windows/flutter/
+linux/flutter/
+
+# 系统
+.DS_Store
+Thumbs.db
+
+# 密钥（禁止提交）
+**/*.jks
+**/*.keystore
+**/*.p12
+**/*.mobileprovision

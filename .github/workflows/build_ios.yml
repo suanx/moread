@@ -1,0 +1,44 @@
+name: build-ios
+
+# 产出未签名的 iOS .app / IPA（--no-codesign）。
+# 若需要上架，请在本仓库配置 secrets 后改用 exportOptions.plist + 证书导入步骤。
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build iOS (no codesign)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Scaffold native projects
+        run: |
+          set -e
+          flutter create --project-name moread --org com.moread \
+            --platforms=ios /tmp/scaffold
+          cp -r /tmp/scaffold/ios .
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code (drift)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build IPA (no codesign)
+        run: flutter build ipa --release --no-codesign
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release
+          path: build/ios/ipa/*.ipa
+          if-no-files-found: warn
