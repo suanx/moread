@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/di/providers.dart';
 import '../../core/error/failure.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../domain/entities/book.dart';
 import '../common/empty_view.dart';

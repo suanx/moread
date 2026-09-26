@@ -8,7 +8,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/utils/time_utils.dart';
 import '../../domain/entities/tts_settings.dart';
-import '../../services/permissions/permission_service.dart';
 import '../../services/tts/tts_playback_controller.dart';
 
 /// 听书面板：音色 / 语速 / 音量 / 定时关闭 / 播放控制。
@@ -188,7 +187,7 @@ class _TtsPlayerSheetState extends ConsumerState<TtsPlayerSheet> {
               children: <Widget>[
                 IconButton(
                   iconSize: 32,
-                  icon: const Icon(Icons.replay_15),
+                  icon: const Icon(Icons.fast_rewind),
                   onPressed: () => c.seekBackward(15),
                 ),
                 const SizedBox(width: AppSpacing.lg),
@@ -209,7 +208,7 @@ class _TtsPlayerSheetState extends ConsumerState<TtsPlayerSheet> {
                 const SizedBox(width: AppSpacing.lg),
                 IconButton(
                   iconSize: 32,
-                  icon: const Icon(Icons.forward_15),
+                  icon: const Icon(Icons.fast_forward),
                   onPressed: () => c.seekForward(15),
                 ),
               ],

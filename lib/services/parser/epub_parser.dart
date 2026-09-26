@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:html/dom.dart' as dom;
@@ -265,7 +266,7 @@ class EpubParser implements BookParser {
   }
 
   static Iterable<XmlElement> _allLocal(XmlNode root, String local) sync* {
-    for (final XmlNode node in root.descendants.whereType<XmlElement>()) {
+    for (final XmlElement node in root.descendants.whereType<XmlElement>()) {
       if (node.name.local == local) yield node;
     }
   }

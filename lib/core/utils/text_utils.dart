@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 /// 文本处理工具：章节切分、字数统计、HTML 转义、TTS 文本清洗。
 abstract final class TextUtils {

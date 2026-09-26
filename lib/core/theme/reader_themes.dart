@@ -45,7 +45,7 @@ class ReaderTheme {
 
   /// 转为 CSS 十六进制颜色（#RRGGBB）
   static String _toCss(Color c) =>
-      '#${(c.value & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
+      '#${(c.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
 
   static const ReaderTheme light = ReaderTheme(
     id: 'light',

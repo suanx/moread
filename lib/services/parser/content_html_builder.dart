@@ -38,7 +38,7 @@ abstract final class ContentHtmlBuilder {
     List<String> anchors = const <String>[],
   }) {
     final dom.Document doc = html_parser.parse(bodyHtml);
-    final dom.Element body = doc.body ?? (doc.createElement('body') as dom.Element);
+    final dom.Element body = doc.body ?? doc.createElement('body');
 
     final StringBuffer plain = StringBuffer();
     final List<TextRange> sentences = <TextRange>[];

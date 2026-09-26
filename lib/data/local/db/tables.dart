@@ -1,6 +1,11 @@
 import 'package:drift/drift.dart';
 
 /// 书籍表
+///
+/// 说明：所有表都用 `@DataClassName` 显式指定行类名并加 `Row` 后缀，
+/// 原因是 Drift 默认按表名推导（Books → Book），会与 `domain/entities` 中的
+/// 领域实体重名，导致大量 `ambiguous_import`。
+@DataClassName('BookRow')
 class Books extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();
@@ -27,6 +32,7 @@ class Books extends Table {
 }
 
 /// 章节表
+@DataClassName('ChapterRow')
 class Chapters extends Table {
   TextColumn get id => text()();
   TextColumn get bookId =>
@@ -46,6 +52,7 @@ class Chapters extends Table {
 }
 
 /// 阅读进度表（一书一条）
+@DataClassName('ReadingProgressRow')
 class ReadingProgresses extends Table {
   TextColumn get bookId =>
       text().references(Books, #id, onDelete: KeyAction.cascade)();
@@ -62,6 +69,7 @@ class ReadingProgresses extends Table {
 }
 
 /// 书签表
+@DataClassName('BookmarkRow')
 class Bookmarks extends Table {
   TextColumn get id => text()();
   TextColumn get bookId =>
@@ -78,6 +86,7 @@ class Bookmarks extends Table {
 }
 
 /// 笔记表
+@DataClassName('NoteRow')
 class Notes extends Table {
   TextColumn get id => text()();
   TextColumn get bookId =>
@@ -97,6 +106,7 @@ class Notes extends Table {
 }
 
 /// 阅读 / 听书会话表
+@DataClassName('ReadingSessionRow')
 class ReadingSessions extends Table {
   TextColumn get id => text()();
   TextColumn get bookId =>
@@ -112,6 +122,7 @@ class ReadingSessions extends Table {
 }
 
 /// 在线下载任务表（断点续传 / 离线缓存状态）
+@DataClassName('DownloadRow')
 class Downloads extends Table {
   TextColumn get id => text()();
   TextColumn get bookId => text()();

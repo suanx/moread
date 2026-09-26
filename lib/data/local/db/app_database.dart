@@ -30,7 +30,6 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 1;
 
-  @override
   MigrationStrategy get migrationStrategy => MigrationStrategy(
         onCreate: (Migrator m) async => m.createAll(),
         onUpgrade: (Migrator m, int from, int to) async {
@@ -49,7 +48,7 @@ class AppDatabase extends _$AppDatabase {
   // =========================================================================
 
   /// 书架列表：收藏优先，其次最近阅读，最后添加时间
-  Stream<List<Book>> watchBooks({String? source}) {
+  Stream<List<BookRow>> watchBooks({String? source}) {
     final SimpleSelectStatement<Books, Book> q = select(books);
     if (source != null) {
       q.where((Books tbl) => tbl.source.equals(source));
@@ -62,9 +61,9 @@ class AppDatabase extends _$AppDatabase {
     return q.watch();
   }
 
-  Future<List<Book>> getAllBooks() => select(books).get();
+  Future<List<BookRow>> getAllBooks() => select(books).get();
 
-  Future<Book?> getBook(String id) =>
+  Future<BookRow?> getBook(String id) =>
       (select(books)..where((Books t) => t.id.equals(id))).getSingleOrNull();
 
   Future<void> upsertBook(BooksCompanion entry) =>
@@ -77,14 +76,14 @@ class AppDatabase extends _$AppDatabase {
   // 章节
   // =========================================================================
 
-  Future<List<Chapter>> getChapters(String bookId) => (select(chapters)
+  Future<List<ChapterRow>> getChapters(String bookId) => (select(chapters)
         ..where((Chapters t) => t.bookId.equals(bookId))
         ..orderBy(<OrderingTerm Function(Chapters)>[
               (Chapters t) => OrderingTerm.asc(t.idx),
             ]))
       .get();
 
-  Future<Chapter?> getChapter(String bookId, String chapterId) =>
+  Future<ChapterRow?> getChapter(String bookId, String chapterId) =>
       (select(chapters)
             ..where((Chapters t) =>
                 t.bookId.equals(bookId) & t.id.equals(chapterId)))
@@ -110,7 +109,7 @@ class AppDatabase extends _$AppDatabase {
   // 阅读进度
   // =========================================================================
 
-  Future<ReadingProgress?> getProgress(String bookId) =>
+  Future<ReadingProgressRow?> getProgress(String bookId) =>
       (select(readingProgresses)
             ..where((ReadingProgresses t) => t.bookId.equals(bookId)))
           .getSingleOrNull();
@@ -122,7 +121,7 @@ class AppDatabase extends _$AppDatabase {
   // 书签
   // =========================================================================
 
-  Stream<List<Bookmark>> watchBookmarks(String bookId) => (select(bookmarks)
+  Stream<List<BookmarkRow>> watchBookmarks(String bookId) => (select(bookmarks)
         ..where((Bookmarks t) => t.bookId.equals(bookId))
         ..orderBy(<OrderingTerm Function(Bookmarks)>[
               (Bookmarks t) => OrderingTerm.desc(t.createdAt),
@@ -139,14 +138,14 @@ class AppDatabase extends _$AppDatabase {
   // 笔记
   // =========================================================================
 
-  Stream<List<Note>> watchNotes(String bookId) => (select(notes)
+  Stream<List<NoteRow>> watchNotes(String bookId) => (select(notes)
         ..where((Notes t) => t.bookId.equals(bookId))
         ..orderBy(<OrderingTerm Function(Notes)>[
               (Notes t) => OrderingTerm.desc(t.createdAt),
             ]))
       .watch();
 
-  Future<List<Note>> getAllNotes() => (select(notes)
+  Future<List<NoteRow>> getAllNotes() => (select(notes)
         ..orderBy(<OrderingTerm Function(Notes)>[
               (Notes t) => OrderingTerm.desc(t.createdAt),
             ]))
@@ -177,10 +176,10 @@ class AppDatabase extends _$AppDatabase {
 
   /// 书架统计：已读完 / 在读 数量
   Future<({int finished, int reading})> countShelfStatus() async {
-    final List<Book> all = await select(books).get();
+    final List<BookRow> all = await select(books).get();
     int finished = 0;
     int reading = 0;
-    for (final Book b in all) {
+    for (final BookRow b in all) {
       if (b.progress >= 0.99) {
         finished++;
       } else if (b.progress > 0) {
@@ -201,12 +200,12 @@ class AppDatabase extends _$AppDatabase {
       (update(readingSessions)..where((ReadingSessions t) => t.id.equals(id)))
           .write(entry);
 
-  Future<ReadingSession?> getSession(String id) =>
+  Future<ReadingSessionRow?> getSession(String id) =>
       (select(readingSessions)..where((ReadingSessions t) => t.id.equals(id)))
           .getSingleOrNull();
 
   /// 最近 N 天的会话（用于统计页）
-  Future<List<ReadingSession>> recentSessions(int sinceMillis) =>
+  Future<List<ReadingSessionRow>> recentSessions(int sinceMillis) =>
       (select(readingSessions)
             ..where((ReadingSessions t) =>
                 t.startedAt.isBiggerOrEqualValue(sinceMillis))
@@ -230,7 +229,7 @@ class AppDatabase extends _$AppDatabase {
   Future<int> upsertDownload(DownloadsCompanion entry) =>
       into(downloads).insertOnConflictUpdate(entry);
 
-  Future<Download?> getDownload(String id) =>
+  Future<DownloadRow?> getDownload(String id) =>
       (select(downloads)..where((Downloads t) => t.id.equals(id)))
           .getSingleOrNull();
 

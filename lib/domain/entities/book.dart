@@ -94,6 +94,7 @@ class Book {
   Book copyWith({
     String? title,
     String? author,
+    String? sourceUri,
     String? coverPath,
     String? contentDir,
     String? description,
@@ -115,7 +116,7 @@ class Book {
         localPath: localPath,
         contentDir: contentDir ?? this.contentDir,
         coverPath: coverPath ?? this.coverPath,
-        sourceUri: sourceUri,
+        sourceUri: sourceUri ?? this.sourceUri,
         language: language ?? this.language,
         description: description ?? this.description,
         publisher: publisher ?? this.publisher,

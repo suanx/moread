@@ -11,6 +11,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/reader_themes.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/entities/bookmark.dart';
+import '../../domain/entities/reader_settings.dart';
 import '../tts/tts_player_sheet.dart';
 import 'reader_controller.dart';
 import 'reader_marks_sheet.dart';
@@ -47,9 +48,6 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
       ref.read(readerControllerProvider(widget.bookId)).load(),
     );
   }
-
-  ReaderController get _controller =>
-      ref.read(readerControllerProvider(widget.bookId));
 
   @override
   Widget build(BuildContext context) {

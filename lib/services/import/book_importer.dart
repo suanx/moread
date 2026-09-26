@@ -6,8 +6,6 @@ import 'package:uuid/uuid.dart';
 import '../../core/error/failure.dart';
 import '../../core/logging/app_logger.dart';
 import '../../core/storage/app_paths.dart';
-import '../../domain/entities/book.dart';
-import '../parser/book_parser.dart';
 import '../parser/parsed_book.dart';
 import '../parser/parser_registry.dart';
 

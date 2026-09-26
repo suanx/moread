@@ -14,6 +14,7 @@ import '../../domain/entities/chapter_content.dart';
 import '../../domain/entities/reader_settings.dart';
 import '../../domain/repositories/book_repository.dart';
 import '../local/db/app_database.dart';
+import '../local/db/tables.dart';
 import '../mappers/entity_mapper.dart';
 import '../../services/import/book_importer.dart';
 import '../../services/parser/content_html_builder.dart';
@@ -69,7 +70,9 @@ class BookRepositoryImpl implements BookRepository {
     await _db.upsertBook(EntityMapper.bookCompanion(book));
     await _db.replaceChapters(
       book.id,
-      chapters.map(EntityMapper.chapterCompanion).toList(),
+      chapters
+          .map<ChaptersCompanion>(EntityMapper.chapterCompanion)
+          .toList(),
     );
   }
 
@@ -99,8 +102,9 @@ class BookRepositoryImpl implements BookRepository {
     ReaderSettings settings = const ReaderSettings(),
     ReaderTheme theme = ReaderTheme.light,
   }) async {
-    final book = await _db.getBook(bookId);
-    if (book == null) return null;
+    final row = await _db.getBook(bookId);
+    if (row == null) return null;
+    final Book book = EntityMapper.book(row);
 
     if (book.format == BookFormat.pdf) {
       return null; // PDF 由原生渲染器处理
@@ -147,8 +151,9 @@ class BookRepositoryImpl implements BookRepository {
     final String? cached = _plainCache['$bookId/${chapter.id}'];
     if (cached != null) return cached;
 
-    final book = await _db.getBook(bookId);
-    if (book == null) return '';
+    final row = await _db.getBook(bookId);
+    if (row == null) return '';
+    final Book book = EntityMapper.book(row);
 
     String text = '';
     if (book.format == BookFormat.pdf) {

@@ -18,12 +18,9 @@ QueryExecutor openConnection(String dbName) {
       await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
     }
 
-    final Directory dir;
-    if (Platform.isAndroid) {
-      dir = Directory(await getDatabasesPath());
-    } else {
-      dir = await getApplicationDocumentsDirectory();
-    }
+    // 统一放应用文档目录：path_provider 未导出 getDatabasesPath()，
+    // 且文档目录在 iOS 上会被 iCloud 备份，符合用户预期
+    final Directory dir = await getApplicationDocumentsDirectory();
     if (!dir.existsSync()) {
       await dir.create(recursive: true);
     }

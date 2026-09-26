@@ -2,21 +2,22 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 
-import '../../data/local/db/tables.dart' as db;
 import '../../domain/entities/book.dart';
 import '../../domain/entities/bookmark.dart';
 import '../../domain/entities/chapter.dart';
 import '../../domain/entities/note.dart';
 import '../../domain/entities/reading_progress.dart';
 import '../../domain/entities/reading_session.dart';
+import '../local/db/app_database.dart' as db;
 
 /// Drift 行 ↔ 领域实体的双向映射。
 ///
 /// 单独成文件的原因：数据库结构演进时只需改这一处，领域层保持稳定。
-/// 注意：Drift 生成的行类与领域实体同名，故用 `db.` 前缀区分。
+/// 注意：Drift 生成的行类带 `Row` 后缀（见 tables.dart 的 `@DataClassName`），
+/// 通过 `db.` 前缀引用，与领域实体彻底区分。
 abstract final class EntityMapper {
   // ---------- Book ----------
-  static Book book(db.Book row) => Book(
+  static Book book(db.BookRow row) => Book(
         id: row.id,
         title: row.title,
         author: row.author,
@@ -67,7 +68,7 @@ abstract final class EntityMapper {
       );
 
   // ---------- Chapter ----------
-  static Chapter chapter(db.Chapter row) => Chapter(
+  static Chapter chapter(db.ChapterRow row) => Chapter(
         id: row.id,
         bookId: row.bookId,
         index: row.idx,
@@ -97,7 +98,7 @@ abstract final class EntityMapper {
       );
 
   // ---------- Progress ----------
-  static ReadingProgress progress(db.ReadingProgress row) => ReadingProgress(
+  static ReadingProgress progress(db.ReadingProgressRow row) => ReadingProgress(
         bookId: row.bookId,
         chapterId: row.chapterId,
         chapterIndex: row.chapterIndex,
@@ -121,7 +122,7 @@ abstract final class EntityMapper {
       );
 
   // ---------- Bookmark ----------
-  static Bookmark bookmark(db.Bookmark row) => Bookmark(
+  static Bookmark bookmark(db.BookmarkRow row) => Bookmark(
         id: row.id,
         bookId: row.bookId,
         chapterId: row.chapterId,
@@ -145,7 +146,7 @@ abstract final class EntityMapper {
       );
 
   // ---------- Note ----------
-  static Note note(db.Note row) => Note(
+  static Note note(db.NoteRow row) => Note(
         id: row.id,
         bookId: row.bookId,
         chapterId: row.chapterId,
@@ -174,7 +175,7 @@ abstract final class EntityMapper {
       );
 
   // ---------- Session ----------
-  static ReadingSession session(db.ReadingSession row) => ReadingSession(
+  static ReadingSession session(db.ReadingSessionRow row) => ReadingSession(
         id: row.id,
         bookId: row.bookId,
         startedAt: row.startedAt,
