@@ -71,10 +71,12 @@ jobs:
           set -e
           CACHE="$HOME/.pub-cache/hosted/pub.dev"
           find "$CACHE" -path '*/android/build.gradle' \
-            -print0 | xargs -0 -r sed -i \
+            -print0 | xargs -0 -r sed -i -E \
             -e "s|proguard-android\.txt|proguard-android-optimize.txt|g" \
             -e "s|compileSdkVersion[[:space:]]*=?[[:space:]]*[0-9]+|compileSdkVersion 36|g" \
-            -e "s|compileSdk[[:space:]]*=[^[:space:]]+|compileSdk = 36|g"
+            -e "s|compileSdk[[:space:]]*=[^[:space:]]+|compileSdk = 36|g" \
+            -e "s|compileSdk[[:space:]]+[0-9]+|compileSdk 36|g" \
+            -e "s|targetSdkVersion[[:space:]]*=?[[:space:]]*[0-9]+|targetSdkVersion 35|g"
           echo "--- verify ---"
           find "$CACHE" -path '*/android/build.gradle' -print0 \
             | xargs -0 -r grep -H "compileSdk" | head -20 || true
