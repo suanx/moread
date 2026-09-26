@@ -223,17 +223,19 @@ class EpubParser implements BookParser {
   // =========================================================================
 
   static ArchiveFile? _findFile(Archive archive, String name) {
-    for (final ArchiveFile f in archive.files) {
+    final List<ArchiveFile> files = archive.getAllFiles().toList();
+    for (final ArchiveFile f in files) {
       if (f.name.toLowerCase() == name.toLowerCase()) return f;
     }
     // 部分 EPUB 打包时带 ./ 前缀或大小写差异
-    for (final ArchiveFile f in archive.files) {
+    for (final ArchiveFile f in files) {
       if (_normalize(f.name) == _normalize(name)) return f;
     }
     return null;
   }
 
-  static Uint8List _bytes(ArchiveFile f) => Uint8List.fromList(f.content);
+  /// archive 4.x：`readBytes()` 取代了 3.x 的 `content` getter
+  static Uint8List _bytes(ArchiveFile f) => f.readBytes() ?? Uint8List(0);
 
   static String _normalize(String path) =>
       p.normalize(path).replaceAll(r'\', '/').replaceAll(RegExp(r'^\./'), '');
@@ -291,7 +293,7 @@ class EpubParser implements BookParser {
     if (!outDir.existsSync()) {
       await outDir.create(recursive: true);
     }
-    for (final ArchiveFile f in archive.files) {
+    for (final ArchiveFile f in archive.getAllFiles()) {
       if (!f.isFile) continue;
       final String safe = _safeJoin(outDir.path, f.name);
       if (safe.isEmpty) continue; // 防御 zip slip 路径穿越

@@ -35,7 +35,7 @@ dependencies:
   cached_network_image: ^3.3.1
 
   # ---------- 书籍格式解析 ----------
-  archive: ^3.6.1      # EPUB(zip) 解包
+  archive: ^4.0.9      # EPUB(zip) 解包
   xml: ^6.5.0          # OPF / NCX / nav 解析
   html: ^0.15.4        # XHTML 正文抽取与清洗
   # PDF 渲染。必须用 2.x：1.3.5 的 pdf_file_cache.dart 在新版 Dart（3.13+）下
