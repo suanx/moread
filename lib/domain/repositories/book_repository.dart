@@ -1,8 +1,8 @@
+import '../../core/theme/reader_themes.dart';
 import '../entities/book.dart';
 import '../entities/chapter.dart';
 import '../entities/chapter_content.dart';
 import '../entities/reader_settings.dart';
-import '../../core/theme/reader_themes.dart';
 
 /// 书籍仓储：书架 CRUD + 目录 + 正文获取 + 在线下载。
 abstract interface class BookRepository {

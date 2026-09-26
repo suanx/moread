@@ -14,7 +14,6 @@ import '../../domain/entities/chapter_content.dart';
 import '../../domain/entities/reader_settings.dart';
 import '../../domain/repositories/book_repository.dart';
 import '../local/db/app_database.dart';
-import '../local/db/tables.dart';
 import '../mappers/entity_mapper.dart';
 import '../../services/import/book_importer.dart';
 import '../../services/parser/content_html_builder.dart';
@@ -70,9 +69,7 @@ class BookRepositoryImpl implements BookRepository {
     await _db.upsertBook(EntityMapper.bookCompanion(book));
     await _db.replaceChapters(
       book.id,
-      chapters
-          .map<ChaptersCompanion>(EntityMapper.chapterCompanion)
-          .toList(),
+      chapters.map(EntityMapper.chapterCompanion).toList(),
     );
   }
 

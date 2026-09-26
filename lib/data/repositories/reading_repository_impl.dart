@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/utils/text_utils.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/entities/bookmark.dart';
+import '../../domain/entities/chapter.dart';
 import '../../domain/entities/note.dart';
 import '../../domain/entities/reading_progress.dart';
 import '../../domain/entities/reading_session.dart';

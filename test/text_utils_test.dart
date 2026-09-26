@@ -31,7 +31,7 @@ void main() {
 
   group('TextUtils.splitForSpeech', () {
     test('长文本被切成多片且不丢字符', () {
-      final String text = '句子一。' * 2000;
+      final String text = List<String>.filled(2000, '句子一。').join();
       final List<TextRange> ranges = TextUtils.splitForSpeech(text, maxChars: 500);
       expect(ranges.length, greaterThan(1));
       expect(ranges.first.start, 0);

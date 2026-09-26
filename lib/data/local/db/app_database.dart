@@ -49,7 +49,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// 书架列表：收藏优先，其次最近阅读，最后添加时间
   Stream<List<BookRow>> watchBooks({String? source}) {
-    final SimpleSelectStatement<Books, Book> q = select(books);
+    final SimpleSelectStatement<Books, BookRow> q = select(books);
     if (source != null) {
       q.where((Books tbl) => tbl.source.equals(source));
     }
