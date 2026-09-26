@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -79,8 +80,9 @@ void main() {
       const String json = '{"Metadata":[{"Type":"WordBoundary",'
           '"Data":{"Offset":10000000,"Duration":2000000,'
           '"text":{"Text":"你好","BoundaryType":"WORD"}}}]}';
+      // 真实场景：WebSocket 帧负载是 UTF-8 字节，不能用 codeUnits（UTF-16）
       final List<EdgeWordBoundary> list = EdgeTtsProtocol.parseWordBoundaries(
-        Uint8List.fromList(json.codeUnits),
+        Uint8List.fromList(utf8.encode(json)),
       );
       expect(list.length, 1);
       expect(list.first.text, '你好');

@@ -48,6 +48,20 @@ jobs:
       - name: Generate code (drift)
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Patch deprecated proguard file (flutter_inappwebview_android 1.1.3)
+        # flutter_inappwebview_android 1.1.3 仍调用 getDefaultProguardFile('proguard-android.txt')，
+        # 新版 AGP 已移除该默认文件（因其包含 -dontoptimize），会导致 Gradle 求值直接失败。
+        # 这里把插件里的引用替换为 optimize 版本；插件升级后可移除本步骤。
+        run: |
+          set -e
+          find "$HOME/.pub-cache/hosted/pub.dev" \
+            -path '*flutter_inappwebview_android*/android/build.gradle' \
+            -print0 | xargs -0 -r sed -i \
+            "s/proguard-android\.txt/proguard-android-optimize.txt/g"
+          echo "patched:"
+          find "$HOME/.pub-cache/hosted/pub.dev" \
+            -path '*flutter_inappwebview_android*/android/build.gradle' | head
+
       - name: Build APK
         run: flutter build apk --release --split-per-abi
 

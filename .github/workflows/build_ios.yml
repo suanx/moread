@@ -33,12 +33,15 @@ jobs:
       - name: Generate code (drift)
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Build IPA (no codesign)
-        run: flutter build ipa --release --no-codesign
+      # 说明：CI 没有开发团队证书，`flutter build ipa` 即使加 --no-codesign
+      # 也会在 archive 阶段要求 DEVELOPMENT_TEAM。因此这里产出未签名的 Runner.app
+      # （可用于越狱设备/后续本地签名），需要上架时再配置证书与 exportOptions。
+      - name: Build iOS app bundle (no codesign)
+        run: flutter build ios --release --no-codesign
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ios-release
-          path: build/ios/ipa/*.ipa
+          name: ios-release-unsigned
+          path: build/ios/iphoneos/Runner.app
           if-no-files-found: warn
