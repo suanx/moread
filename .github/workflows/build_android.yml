@@ -32,14 +32,16 @@ jobs:
           cache: true
 
       - name: Scaffold native projects
+        # 平台目录由 sync-generated.yml 提交到仓库；缺失时兜底脚手架
         run: |
           set -e
-          flutter create --project-name moread --org com.moread \
-            --platforms=android /tmp/scaffold
-          cp -r /tmp/scaffold/android .
-          # 补充 Release 签名占位（默认使用 debug key，保证可安装）
-          if [ ! -f android/key.properties ]; then
+          if [ ! -d android ]; then
+            flutter create --project-name moread --org com.moread \
+              --platforms=android /tmp/scaffold
+            cp -r /tmp/scaffold/android .
             echo "android/key.properties not provided; using default signing" >&2
+          else
+            echo "android/ already committed, skip scaffolding"
           fi
 
       - name: Install dependencies

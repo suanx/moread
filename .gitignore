@@ -7,8 +7,12 @@ build/
 coverage/
 *.log
 
-# 生成代码（CI 与本地均通过 build_runner 生成）
-*.g.dart
+# 生成代码
+# 注意：*.g.dart **必须提交**。它由 drift 代码生成，若不提交，本地克隆后
+# lib/data/local/db/app_database.dart 的 `part 'app_database.g.dart'` 会找不到文件，
+# 导致 IDE 里出现成百上千个 undefined class 错误。
+# 同步机制见 .github/workflows/sync-generated.yml（由 CI 生成并提交）。
+# *.freezed.dart / *.mocks.dart 目前未使用，保留忽略规则。
 *.freezed.dart
 *.mocks.dart
 

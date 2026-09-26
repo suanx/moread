@@ -23,11 +23,16 @@ jobs:
           cache: true
 
       - name: Scaffold web project
+        # 平台目录由 sync-generated.yml 提交到仓库；缺失时兜底脚手架
         run: |
           set -e
-          flutter create --project-name moread --org com.moread \
-            --platforms=web /tmp/scaffold
-          cp -r /tmp/scaffold/web .
+          if [ ! -d web ]; then
+            flutter create --project-name moread --org com.moread \
+              --platforms=web /tmp/scaffold
+            cp -r /tmp/scaffold/web .
+          else
+            echo "web/ already committed, skip scaffolding"
+          fi
 
       - name: Install dependencies
         run: flutter pub get

@@ -1,0 +1,74 @@
+name: sync-generated
+
+# 目的：让仓库「克隆即可跑」。
+#
+# 背景与教训：
+# 1. `lib/data/local/db/app_database.g.dart` 由 drift 代码生成，若被 gitignore，
+#    本地克隆后 `part 'app_database.g.dart'` 找不到文件，
+#    IDE 会出现成百上千个 `undefined class`（BookRow / BooksCompanion / _$AppDatabase…），
+#    看起来像代码写错了，其实是缺生成产物；
+# 2. 仓库不含 android/ios/web 原生工程目录时，本地 `flutter run` 会直接报
+#    “No Android/iOS project found”。
+#
+# 因此本工作流负责：脚手架缺失的平台目录 + 跑 build_runner，
+# 然后把结果**提交回 main**。生成物提交后，本地无需任何额外步骤。
+#
+# 防止循环触发：提交信息带 [skip ci]。
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-generated
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync generated code & platform projects
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Scaffold missing platform projects
+        run: |
+          set -e
+          for p in android ios web; do
+            if [ ! -d "$p" ]; then
+              echo "scaffolding $p ..."
+              flutter create --project-name moread --org com.moread --platforms=$p /tmp/scaffold_$p
+              cp -r /tmp/scaffold_$p/$p .
+            else
+              echo "$p already exists, skip"
+            fi
+          done
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code (drift)
+        run: dart run build_runner build
+
+      - name: Commit if changed
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          git commit -m "chore: 同步代码生成产物与原生工程 [skip ci]"
+          git push

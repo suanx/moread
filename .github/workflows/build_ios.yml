@@ -21,11 +21,16 @@ jobs:
           cache: true
 
       - name: Scaffold native projects
+        # 平台目录由 sync-generated.yml 提交到仓库；缺失时兜底脚手架
         run: |
           set -e
-          flutter create --project-name moread --org com.moread \
-            --platforms=ios /tmp/scaffold
-          cp -r /tmp/scaffold/ios .
+          if [ ! -d ios ]; then
+            flutter create --project-name moread --org com.moread \
+              --platforms=ios /tmp/scaffold
+            cp -r /tmp/scaffold/ios .
+          else
+            echo "ios/ already committed, skip scaffolding"
+          fi
 
       - name: Install dependencies
         run: flutter pub get
