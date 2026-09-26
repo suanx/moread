@@ -223,7 +223,7 @@ class EpubParser implements BookParser {
   // =========================================================================
 
   static ArchiveFile? _findFile(Archive archive, String name) {
-    final List<ArchiveFile> files = archive.getAllFiles().toList();
+    final List<ArchiveFile> files = archive.files;
     for (final ArchiveFile f in files) {
       if (f.name.toLowerCase() == name.toLowerCase()) return f;
     }
@@ -234,7 +234,8 @@ class EpubParser implements BookParser {
     return null;
   }
 
-  /// archive 4.x：`readBytes()` 取代了 3.x 的 `content` getter
+  /// archive 4.x：`readBytes()` 取代了 3.x 的 `content` getter；
+  /// `Archive.files` 仍然保留（4.3.0 起 `getAllFiles()` 已移除）
   static Uint8List _bytes(ArchiveFile f) => f.readBytes() ?? Uint8List(0);
 
   static String _normalize(String path) =>
@@ -293,7 +294,7 @@ class EpubParser implements BookParser {
     if (!outDir.existsSync()) {
       await outDir.create(recursive: true);
     }
-    for (final ArchiveFile f in archive.getAllFiles()) {
+    for (final ArchiveFile f in archive.files) {
       if (!f.isFile) continue;
       final String safe = _safeJoin(outDir.path, f.name);
       if (safe.isEmpty) continue; // 防御 zip slip 路径穿越
