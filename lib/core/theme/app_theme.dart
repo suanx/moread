@@ -32,12 +32,10 @@ abstract final class AppTheme {
     );
 
     return ThemeData(
-      useMaterial3: true,
       brightness: brightness,
       colorScheme: scheme,
       scaffoldBackgroundColor: scaffoldBg,
       canvasColor: surface,
-      splashFactory: InkSparkle.splashFactory,
       fontFamily: 'PingFang SC',
       appBarTheme: AppBarTheme(
         elevation: 0,

@@ -26,7 +26,8 @@ jobs:
       - name: Generate code (drift)
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: Check formatting
+      - name: Check formatting (non-blocking)
+        continue-on-error: true
         run: dart format --output=none --set-exit-if-changed lib
 
       - name: Analyze

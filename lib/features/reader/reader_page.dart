@@ -210,12 +210,12 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
               children: <Widget>[
                 Text(
                   c.progressText,
-                  style: TextStyle(color: fg.withOpacity(0.7), fontSize: 12),
+                  style: TextStyle(color: fg.withValues(alpha: 0.7), fontSize: 12),
                 ),
                 const Spacer(),
                 Text(
                   c.currentChapter?.title ?? '',
-                  style: TextStyle(color: fg.withOpacity(0.7), fontSize: 12),
+                  style: TextStyle(color: fg.withValues(alpha: 0.7), fontSize: 12),
                 ),
               ],
             ),

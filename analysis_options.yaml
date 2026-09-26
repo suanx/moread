@@ -1,10 +1,7 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
-  errors:
-    # 允许在 build_runner 生成前存在 missing part 文件
-    missing_part_of_part_file: ignore
-    uri_does_not_exist: ignore
+  # 注意：CI 与本地都要求先跑 build_runner，因此不需要为 *.g.dart 放宽规则
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
