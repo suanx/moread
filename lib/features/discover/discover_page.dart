@@ -375,16 +375,23 @@ class _DiscoverPageState extends ConsumerState<DiscoverPage> {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: AppColors.textSecondary,
+                      // 卡片宽度固定，副标题必须可收缩，否则中文文案会把 meta 行挤爆
+                      Flexible(
+                        child: Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ),
-                      const Spacer(),
+                      const SizedBox(width: 4),
                       Text(
                         metric,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
