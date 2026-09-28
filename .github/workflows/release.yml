@@ -52,6 +52,18 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Verify tag matches pubspec version
+        # 防止 Release 版本号与实际构建不符：tag v0.1.1 必须等于 pubspec 的 0.1.1
+        run: |
+          set -e
+          TAG_VER="${GITHUB_REF_NAME#v}"
+          PUB_VER=$(sed -n 's/^version: \([0-9][0-9.]*\).*/\1/p' pubspec.yaml)
+          if [ "$TAG_VER" != "$PUB_VER" ]; then
+            echo "::error::tag v$TAG_VER 与 pubspec.yaml version $PUB_VER 不一致！请先升版本号再打 tag"
+            exit 1
+          fi
+          echo "版本校验通过：v$TAG_VER == $PUB_VER"
+
       - name: Generate code (drift)
         run: dart run build_runner build --delete-conflicting-outputs
 

@@ -1,7 +1,7 @@
 name: moread
 description: 墨读 Moread —— 一套源码覆盖 iOS / Android / Web / 桌面的电子书阅读器
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.1.1+2
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
