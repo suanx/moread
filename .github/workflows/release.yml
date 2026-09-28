@@ -188,13 +188,14 @@ jobs:
         run: |
           set -e
           cd build/web
+          # 输出到仓库根目录（build/web 的上上级），上传路径保持一致
           zip -r -q "../../Moread-${GITHUB_REF_NAME#v}-web.zip" .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: web-zip
-          path: build/*.zip
+          path: Moread-*-web.zip
           if-no-files-found: error
 
   # ===========================================================================
