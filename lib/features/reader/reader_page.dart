@@ -12,6 +12,7 @@ import '../../core/theme/reader_themes.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/entities/bookmark.dart';
 import '../../domain/entities/reader_settings.dart';
+import '../ai/ai_center_page.dart';
 import '../tts/tts_player_sheet.dart';
 import 'reader_controller.dart';
 import 'reader_marks_sheet.dart';
@@ -25,7 +26,7 @@ import 'toc_sheet.dart';
 /// 组成：
 /// - 内容区：EPUB/TXT → [ReaderView]（WebView 多列分页）；PDF → pdfrx 原生渲染
 /// - 顶部栏 / 底部栏：点击屏幕中央切换显隐
-/// - 底部工具：目录、排版、朗读、书签、笔记
+/// - 底部工具：目录、排版、朗读、笔记、AI、下一章
 /// - 朗读高亮：监听 [ttsControllerProvider] 的字符偏移，驱动 WebView 高亮
 class ReaderPage extends ConsumerStatefulWidget {
   const ReaderPage({super.key, required this.bookId});
@@ -226,6 +227,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
               _tool(Icons.text_fields, '排版', fg, () => _openSettings()),
               _tool(Icons.headphones, '朗读', fg, () => _openTts(c)),
               _tool(Icons.edit_note, '笔记', fg, () => _openMarks(c)),
+              _tool(Icons.auto_awesome, 'AI', fg, () => _openAi()),
               _tool(Icons.skip_next, '下一章', fg, () async {
                 await c.nextChapter();
                 setState(() {});
@@ -289,6 +291,15 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     showModalBottomSheet<void>(
       context: context,
       builder: (_) => const ReaderSettingsSheet(),
+    );
+  }
+
+  /// 进入 AI 中心（问答 / 总结 / 知识卡片 / 思维导图）
+  void _openAi() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => AiCenterPage(bookId: widget.bookId),
+      ),
     );
   }
 

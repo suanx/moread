@@ -5,10 +5,14 @@ import 'package:flutter/material.dart';
 /// 约定：业务代码只允许引用本文件的常量，禁止硬编码颜色值，
 /// 以保证主题切换（浅色 / 深色 / 阅读主题）时的一致性。
 abstract final class AppColors {
-  // ---------- 品牌色 ----------
-  static const Color brand = Color(0xFF22A06B);
-  static const Color brandDark = Color(0xFF1B8156);
-  static const Color brandLight = Color(0xFFE8F5EF);
+  // ---------- 品牌色（对齐设计稿：静谧蓝）----------
+  static const Color brand = Color(0xFF2B6DE8);
+  static const Color brandDark = Color(0xFF1D4FBF);
+  static const Color brandLight = Color(0xFFE6EFFF);
+
+  /// AI 能力强调色（黄色闪电）
+  static const Color ai = Color(0xFFF5B800);
+  static const Color aiLight = Color(0xFFFFF6E0);
 
   // ---------- 语义色 ----------
   static const Color success = Color(0xFF2FA36B);

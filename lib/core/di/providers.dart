@@ -7,6 +7,7 @@ import '../../data/repositories/reading_repository_impl.dart';
 import '../../data/repositories/settings_repository_impl.dart';
 import '../../data/repositories/tts_repository_impl.dart';
 import '../../domain/entities/book.dart';
+import '../../domain/entities/chapter.dart';
 import '../../domain/entities/reader_settings.dart';
 import '../../domain/entities/reading_session.dart';
 import '../../domain/entities/tts_settings.dart';
@@ -14,6 +15,7 @@ import '../../domain/repositories/book_repository.dart';
 import '../../domain/repositories/reading_repository.dart';
 import '../../domain/repositories/settings_repository.dart';
 import '../../domain/repositories/tts_repository.dart';
+import '../../services/ai/ai_service.dart';
 import '../../services/import/book_importer.dart';
 import '../../services/parser/book_parser.dart';
 import '../../services/parser/epub_parser.dart';
@@ -183,4 +185,39 @@ final StreamProvider<List<Book>> shelfProvider = StreamProvider<List<Book>>(
 final FutureProvider<ReadingStats> statsProvider =
     FutureProvider<ReadingStats>(
   (Ref ref) => ref.watch(readingRepositoryProvider).getStats(days: 7),
+);
+
+// ===========================================================================
+// 书籍详情 / 章节正文（AI 中心、笔记页等多处复用）
+// ===========================================================================
+
+/// 单本书
+final bookByIdProvider = FutureProvider.family<Book?, String>(
+  (Ref ref, String bookId) => ref.watch(bookRepositoryProvider).getById(bookId),
+);
+
+/// 书籍目录
+final chaptersProvider = FutureProvider.family<List<Chapter>, String>(
+  (Ref ref, String bookId) =>
+      ref.watch(bookRepositoryProvider).getChapters(bookId),
+);
+
+/// 章节纯文本：AI 生成与统计的输入
+final chapterTextProvider =
+    FutureProvider.family<String, ({String bookId, String chapterId})>(
+  (Ref ref, ({String bookId, String chapterId}) key) async {
+    final BookRepository repo = ref.watch(bookRepositoryProvider);
+    final Chapter? chapter = await repo.getChapter(key.bookId, key.chapterId);
+    if (chapter == null) return '';
+    return repo.loadChapterText(key.bookId, chapter);
+  },
+);
+
+// ===========================================================================
+// AI 能力
+// ===========================================================================
+
+/// AI 服务。当前为本地 Mock；接入真实大模型时只需替换这一行。
+final Provider<AiService> aiServiceProvider = Provider<AiService>(
+  (Ref ref) => const MockAiService(),
 );

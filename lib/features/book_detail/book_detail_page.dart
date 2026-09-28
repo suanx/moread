@@ -47,6 +47,11 @@ class _BookDetailPageState extends ConsumerState<BookDetailPage> {
         title: const Text('书籍详情'),
         actions: <Widget>[
           IconButton(
+            icon: const Icon(Icons.auto_awesome),
+            tooltip: 'AI 中心',
+            onPressed: () => context.push('/ai/${widget.bookId}'),
+          ),
+          IconButton(
             icon: const Icon(Icons.delete_outline),
             onPressed: _confirmDelete,
           ),
