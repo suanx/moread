@@ -38,6 +38,8 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
+          # 锁定版本：避免 stable 浮动升级导致三方插件（pdfrx/file_picker 等）兼容性断裂
+          flutter-version: '3.47.5'
           channel: stable
           cache: true
 
