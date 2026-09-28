@@ -46,3 +46,6 @@ Thumbs.db
 **/*.keystore
 **/*.p12
 **/*.mobileprovision
+
+# 推送脚本的临时目录（勿提交）
+.push_tmp/
