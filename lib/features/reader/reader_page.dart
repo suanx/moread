@@ -29,9 +29,12 @@ import 'toc_sheet.dart';
 /// - 底部工具：目录、排版、朗读、笔记、AI、下一章
 /// - 朗读高亮：监听 [ttsControllerProvider] 的字符偏移，驱动 WebView 高亮
 class ReaderPage extends ConsumerStatefulWidget {
-  const ReaderPage({super.key, required this.bookId});
+  const ReaderPage({super.key, required this.bookId, this.autoOpenTts = false});
 
   final String bookId;
+
+  /// 进入后自动唤起朗读面板（听书页「继续听」入口使用）
+  final bool autoOpenTts;
 
   @override
   ConsumerState<ReaderPage> createState() => _ReaderPageState();
@@ -41,6 +44,7 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
   final GlobalKey<ReaderViewState> _viewKey = GlobalKey<ReaderViewState>();
   bool _chromeVisible = false;
   int _lastHighlight = -1;
+  bool _ttsOpened = false;
 
   @override
   void initState() {
@@ -48,6 +52,15 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
     unawaited(
       ref.read(readerControllerProvider(widget.bookId)).load(),
     );
+  }
+
+  /// 听书入口：正文就绪后自动弹出朗读面板（只弹一次）
+  void _maybeAutoOpenTts(ReaderController c) {
+    if (!widget.autoOpenTts || _ttsOpened || c.content == null) return;
+    _ttsOpened = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _openTts(c);
+    });
   }
 
   @override
@@ -81,6 +94,9 @@ class _ReaderPageState extends ConsumerState<ReaderPage> {
         ),
       );
     }
+
+    // 听书入口：正文就绪后自动弹出朗读面板
+    _maybeAutoOpenTts(c);
 
     return Scaffold(
       backgroundColor: theme.backgroundColor,

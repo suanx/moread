@@ -31,7 +31,13 @@ class _ImportPageState extends ConsumerState<ImportPage> {
   double _progress = 0;
   int _total = 0;
   int _done = 0;
-  final List<String> _failures = <String>[];
+
+  /// 当前正在解析的文件名（给用户可见的进度反馈）
+  String _current = '';
+
+  /// 失败清单：保留路径以便「重试失败项」
+  final List<({String name, String path, String reason})> _failures =
+      <({String name, String path, String reason})>[];
 
   Future<void> _pickFiles() async {
     final bool granted =
@@ -67,18 +73,20 @@ class _ImportPageState extends ConsumerState<ImportPage> {
       _progress = 0;
       _total = paths.length;
       _done = 0;
+      _current = '';
       _failures.clear();
     });
 
     final repo = ref.read(bookRepositoryProvider);
     for (final String path in paths) {
+      setState(() => _current = _name(path));
       try {
         await repo.importLocalFile(path);
       } on Failure catch (e) {
-        _failures.add('${_name(path)}：${e.message}');
+        _failures.add((name: _name(path), path: path, reason: e.message));
       } catch (e, st) {
         AppLogger.e('ImportPage', '导入失败：$path', e, st);
-        _failures.add('${_name(path)}：未知错误');
+        _failures.add((name: _name(path), path: path, reason: '未知错误：$e'));
       } finally {
         _done++;
         if (mounted) {
@@ -89,41 +97,63 @@ class _ImportPageState extends ConsumerState<ImportPage> {
 
     if (!mounted) return;
     ref.invalidate(shelfProvider);
-    setState(() => _importing = false);
+    ref.invalidate(statsProvider);
+    final int ok = _total - _failures.length;
+    setState(() {
+      _importing = false;
+      _current = '';
+    });
 
     if (_failures.isEmpty) {
-      _toast('已导入 $_total 本');
+      _toast('已导入 $ok 本');
       context.pop();
-    } else {
-      await showDialog<void>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: Text('导入完成（${_total - _failures.length}/$_total）'),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                for (final String f in _failures)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                    child: Text('• $f', style: const TextStyle(fontSize: 13)),
-                  ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            FilledButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.pop();
-              },
-              child: const Text('知道了'),
-            ),
-          ],
-        ),
-      );
+      return;
     }
+
+    final List<({String name, String path, String reason})> failed =
+        List<({String name, String path, String reason})>.of(_failures);
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text('导入完成（$ok/$_total）'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              for (final ({String name, String path, String reason}) f in failed)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: Text(
+                    '• ${f.name}\n   ${f.reason}',
+                    style: const TextStyle(fontSize: 13, height: 1.4),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.pop();
+            },
+            child: const Text('稍后再说'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // 仅重试失败的文件
+              unawaited(_import(<String>[
+                for (final ({String name, String path, String reason}) f in failed)
+                  f.path,
+              ]));
+            },
+            child: const Text('重试失败项'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _showPermissionDialog() async {
@@ -187,8 +217,10 @@ class _ImportPageState extends ConsumerState<ImportPage> {
               LinearProgressIndicator(value: _progress),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                '正在导入 $_done/$_total',
+                '正在导入 $_done/$_total${_current.isEmpty ? '' : ' · $_current'}',
                 textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
               const SizedBox(height: AppSpacing.md),

@@ -38,6 +38,11 @@ class MainShell extends StatelessWidget {
             label: '书架',
           ),
           NavigationDestination(
+            icon: Icon(Icons.headphones_outlined),
+            selectedIcon: Icon(Icons.headphones),
+            label: '听书',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: '我',

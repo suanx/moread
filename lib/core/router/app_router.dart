@@ -16,6 +16,7 @@ import '../../features/reader/reader_page.dart';
 import '../../features/settings/settings_page.dart';
 import '../../features/shell/main_shell.dart';
 import '../../features/stats/stats_page.dart';
+import '../../features/tts/tts_library_page.dart';
 
 /// 应用路由。
 ///
@@ -50,6 +51,14 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
           StatefulShellBranch(
             routes: <RouteBase>[
               GoRoute(
+                path: '/listen',
+                builder: (_, __) => const TtsLibraryPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: <RouteBase>[
+              GoRoute(
                 path: '/me',
                 builder: (_, __) => const StatsPage(),
               ),
@@ -64,8 +73,11 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
       ),
       GoRoute(
         path: '/reader/:bookId',
-        builder: (BuildContext context, GoRouterState state) =>
-            ReaderPage(bookId: state.pathParameters['bookId']!),
+        builder: (BuildContext context, GoRouterState state) => ReaderPage(
+          bookId: state.pathParameters['bookId']!,
+          // 听书页入口：?tts=1 → 进入后自动唤起朗读面板
+          autoOpenTts: state.uri.queryParameters['tts'] == '1',
+        ),
       ),
       GoRoute(
         path: '/import',
