@@ -2,10 +2,18 @@ name: build-ios
 
 # 产出未签名的 iOS .app / IPA（--no-codesign）。
 # 若需要上架，请在本仓库配置 secrets 后改用 exportOptions.plist + 证书导入步骤。
+#
+# 触发策略（成本控制）：macOS runner 按 10 倍时长计费，是 CI 消耗的大头，
+# 因此仅在打 tag 或手动触发时构建；日常 push 只跑 analyze / build-android / build-web。
 on:
   push:
-    branches: [main]
+    tags: ['v*']
   workflow_dispatch:
+
+# 同一 ref 只保留最新一次构建，避免重复排队白白消耗额度
+concurrency:
+  group: build-ios-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:

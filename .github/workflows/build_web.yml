@@ -10,6 +10,9 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:/n  group: build-web-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build Web

@@ -13,6 +13,9 @@ on:
         type: boolean
         default: false
 
+concurrency:/n  group: build-android-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build Android
