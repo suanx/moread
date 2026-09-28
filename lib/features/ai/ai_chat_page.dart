@@ -302,17 +302,33 @@ class _ChatViewState extends ConsumerState<_ChatView> {
   }
 }
 
-/// 生成中的三点动画（无第三方依赖，用 TweenAnimationBuilder 实现）
-class _TypingIndicator extends StatelessWidget {
+/// 生成中的三点跳动动画（无第三方依赖）
+class _TypingIndicator extends StatefulWidget {
   const _TypingIndicator();
 
   @override
+  State<_TypingIndicator> createState() => _TypingIndicatorState();
+}
+
+class _TypingIndicatorState extends State<_TypingIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0, end: 3),
-      duration: const Duration(milliseconds: 1200),
-      builder: (BuildContext context, double value, Widget? child) {
-        final int active = value.floor() % 3;
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (BuildContext context, Widget? child) {
+        final int active = (_ctrl.value * 3).floor() % 3;
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[

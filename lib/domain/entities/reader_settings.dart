@@ -12,6 +12,7 @@ class ReaderSettings {
     this.themeId = 'light',
     this.followSystemTheme = false,
     this.pageMode = ReaderPageMode.paged,
+    this.verticalMode = false,
     this.keepScreenOn = true,
     this.brightnessFollowSystem = true,
     this.screenBrightness = 0.6,
@@ -43,6 +44,9 @@ class ReaderSettings {
 
   final ReaderPageMode pageMode;
 
+  /// 竖排（传统排版）：文自右向左成列，仅支持翻页模式
+  final bool verticalMode;
+
   final bool keepScreenOn;
 
   /// 亮度是否跟随系统
@@ -73,6 +77,7 @@ class ReaderSettings {
     String? themeId,
     bool? followSystemTheme,
     ReaderPageMode? pageMode,
+    bool? verticalMode,
     bool? keepScreenOn,
     bool? brightnessFollowSystem,
     double? screenBrightness,
@@ -88,6 +93,7 @@ class ReaderSettings {
         themeId: themeId ?? this.themeId,
         followSystemTheme: followSystemTheme ?? this.followSystemTheme,
         pageMode: pageMode ?? this.pageMode,
+        verticalMode: verticalMode ?? this.verticalMode,
         keepScreenOn: keepScreenOn ?? this.keepScreenOn,
         brightnessFollowSystem: brightnessFollowSystem ?? this.brightnessFollowSystem,
         screenBrightness: screenBrightness ?? this.screenBrightness,
@@ -105,6 +111,7 @@ class ReaderSettings {
         'themeId': themeId,
         'followSystemTheme': followSystemTheme,
         'pageMode': pageMode.name,
+        'verticalMode': verticalMode,
         'keepScreenOn': keepScreenOn,
         'brightnessFollowSystem': brightnessFollowSystem,
         'screenBrightness': screenBrightness,
@@ -125,6 +132,7 @@ class ReaderSettings {
           orElse: () => ReaderPageMode.paged,
         ),
         keepScreenOn: m['keepScreenOn'] as bool? ?? true,
+        verticalMode: m['verticalMode'] as bool? ?? false,
         brightnessFollowSystem: m['brightnessFollowSystem'] as bool? ?? true,
         screenBrightness: (m['screenBrightness'] as num?)?.toDouble() ?? 0.6,
         enableVolumeKeyTurnPage: m['enableVolumeKeyTurnPage'] as bool? ?? false,

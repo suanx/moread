@@ -8,6 +8,7 @@ import '../../data/repositories/settings_repository_impl.dart';
 import '../../data/repositories/tts_repository_impl.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/entities/chapter.dart';
+import '../../domain/entities/note.dart';
 import '../../domain/entities/reader_settings.dart';
 import '../../domain/entities/reading_session.dart';
 import '../../domain/entities/tts_settings.dart';
@@ -220,4 +221,13 @@ final chapterTextProvider =
 /// AI 服务。当前为本地 Mock；接入真实大模型时只需替换这一行。
 final Provider<AiService> aiServiceProvider = Provider<AiService>(
   (Ref ref) => const MockAiService(),
+);
+
+// ===========================================================================
+// 笔记中心
+// ===========================================================================
+
+/// 全书笔记（划线 + 想法），按创建时间倒序
+final allNotesProvider = FutureProvider<List<Note>>(
+  (Ref ref) => ref.watch(readingRepositoryProvider).getAllNotes(),
 );

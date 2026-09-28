@@ -154,6 +154,10 @@ abstract final class ContentHtmlBuilder {
   }) {
     final double padX = 20 * settings.marginScale;
     final double padY = 16.0;
+    // 竖排固定使用翻页模式（成列推进，滚动无意义）
+    final bool vertical = settings.verticalMode;
+    final String contentClass =
+        vertical ? 'paged vertical' : 'paged';
     final String titleBlock = chapterTitle.isEmpty
         ? ''
         : '<h1 class="chapter-title">${TextUtils.escapeXml(chapterTitle)}</h1>';
@@ -206,11 +210,26 @@ html,body{height:100%;background:var(--bg);color:var(--fg);overflow:hidden}
 #content a{color:inherit;text-decoration:none}
 #content span.hl{background:var(--hl);border-radius:3px}
 #content span.mark{background:var(--hl);border-radius:2px}
+/* 竖排（传统排版）：书写方向 vertical-rl，列自右向左推进。
+   列宽 = 100vh - 2*pady，列间距 = 2*pady，与横排分页保持同一套「一屏一列」模型。 */
+#content.vertical{
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+  height:100%;
+  width:100vw;
+  column-width:calc(100vh - 2 * var(--pady));
+  column-gap:calc(2 * var(--pady));
+  column-fill:auto;
+}
+#content.vertical p{margin-bottom:0;margin-left:calc(0.6 * var(--ps))}
+#content.vertical .chapter-title{margin:0 0 0 1.2em}
+#content.vertical h1,#content.vertical h2,#content.vertical h3{margin:.6em 0 1.2em}
+#content.vertical img{max-width:100%;max-height:56vh;width:auto}
 </style>
 </head>
 <body>
 <div id="viewport">
-  <div id="content" class="paged">
+  <div id="content" class="$contentClass">
     <div id="reader-body">$titleBlock$innerHtml</div>
   </div>
 </div>
@@ -237,9 +256,33 @@ ${_jsBridge()}
   var viewport = document.getElementById('viewport');
   var content = document.getElementById('content');
   var state = { mode: 'paged', page: 0, pages: 1, lastSpan: null };
+  var vertical = false;
 
   function vw() { return viewport.clientWidth || window.innerWidth; }
+  function vh() { return viewport.clientHeight || window.innerHeight; }
   function padX() { return parseFloat(window.getComputedStyle(content).paddingLeft) || 0; }
+  function padY() { return parseFloat(window.getComputedStyle(content).paddingTop) || 0; }
+
+  /** 单页步长：竖排沿 Y 轴推进，横排沿 X 轴 */
+  function pageSpan() { return vertical ? vh() : vw(); }
+
+  /** 元素所在页码。横排按 left 计算；竖排列自右向左，故按 right 反推 */
+  function pageOf(el) {
+    var rect = el.getBoundingClientRect();
+    if (vertical) {
+      return Math.round((vw() - padX() - rect.right) / pageSpan());
+    }
+    return Math.floor((rect.left - padX()) / pageSpan());
+  }
+
+  /** 在「无位移」的坐标系里测量，测完还原（transform 会影响 getBoundingClientRect） */
+  function withIdentity(fn) {
+    var prev = content.style.transform;
+    content.style.transform = 'none';
+    var out = fn();
+    content.style.transform = prev;
+    return out;
+  }
   function notify(type, payload) {
     try {
       if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
@@ -251,14 +294,27 @@ ${_jsBridge()}
 
   function measure() {
     if (state.mode !== 'paged') { state.pages = 1; return; }
-    var w = content.scrollWidth || 0;
-    var p = Math.max(1, Math.round((w + padX()) / vw()));
+    var p;
+    if (vertical) {
+      // 竖排：列自右向左溢出，用「最后一个句段的列序号 + 1」得到总列数
+      var spans = content.querySelectorAll('span[data-s]');
+      if (!spans.length) { state.pages = 1; return; }
+      var last = spans[spans.length - 1];
+      p = withIdentity(function () { return pageOf(last); }) + 1;
+    } else {
+      var w = content.scrollWidth || 0;
+      p = Math.max(1, Math.round((w + padX()) / vw()));
+    }
+    if (!isFinite(p) || p < 1) p = 1;
     if (p !== state.pages) { state.pages = p; }
   }
 
   function apply() {
     if (state.mode === 'paged') {
-      content.style.transform = 'translateX(' + (-state.page * vw()) + 'px)';
+      var d = state.page * pageSpan();
+      content.style.transform = vertical
+        ? 'translateX(' + d + 'px)'
+        : 'translateX(' + (-d) + 'px)';
     } else {
       content.style.transform = 'none';
     }
@@ -297,6 +353,22 @@ ${_jsBridge()}
       emitProgress();
     },
     setFontSize: function (px) { content.style.fontSize = px + 'px'; },
+    /** 竖排开关：竖排强制翻页模式（成列推进） */
+    setVertical: function (on) {
+      vertical = !!on;
+      if (vertical) {
+        content.classList.add('vertical');
+        state.mode = 'paged';
+        content.classList.add('paged');
+        content.classList.remove('scroll');
+        viewport.classList.remove('scrollable');
+      } else {
+        content.classList.remove('vertical');
+      }
+      measure();
+      apply();
+      emitProgress();
+    },
     setLineHeight: function (v) { content.style.lineHeight = String(v); },
     setLetterSpacing: function (px) { content.style.letterSpacing = px + 'px'; },
     setVar: function (name, value) { document.documentElement.style.setProperty(name, value); },
@@ -344,9 +416,8 @@ ${_jsBridge()}
       }
       var prev = content.style.transform;
       content.style.transform = 'none';
-      var left = el.getBoundingClientRect().left - padX();
+      var p = Math.max(0, Math.floor(pageOf(el)));
       content.style.transform = prev;
-      var p = Math.max(0, Math.floor(left / vw()));
       return Reader.goToPage(p);
     },
 
@@ -362,9 +433,8 @@ ${_jsBridge()}
       }
       var prev = content.style.transform;
       content.style.transform = 'none';
-      var left = span.getBoundingClientRect().left - padX();
+      var p = Math.max(0, Math.floor(pageOf(span)));
       content.style.transform = prev;
-      var p = Math.max(0, Math.floor(left / vw()));
       return Reader.goToPage(p);
     },
 
@@ -396,9 +466,8 @@ ${_jsBridge()}
       if (state.mode === 'paged') {
         var prev = content.style.transform;
         content.style.transform = 'none';
-        var left = span.getBoundingClientRect().left - padX();
+        var p = Math.max(0, Math.floor(pageOf(span)));
         content.style.transform = prev;
-        var p = Math.max(0, Math.floor(left / vw()));
         if (p !== state.page) { Reader.goToPage(p); }
       } else {
         var top = span.getBoundingClientRect().top + viewport.scrollTop - viewport.clientHeight / 2;
@@ -457,15 +526,19 @@ ${_jsBridge()}
 
   window.Reader = Reader;
 
-  // 点击翻页：左 1/3 上一页，右 2/3 下一页
+  // 点击翻页：横排左 1/3 上一页、右 1/3 下一页；竖排阅读顺序自右向左，故左右互换
   viewport.addEventListener('click', function (ev) {
     if (state.mode !== 'paged') return;
     var sel = window.getSelection();
     if (sel && !sel.isCollapsed) return;
     var x = ev.clientX, w = vw();
-    if (x < w / 3) { Reader.prevPage(); }
-    else if (x > w * 2 / 3) { Reader.nextPage(); }
-    else { notify('tapCenter', {}); }
+    if (x < w / 3) {
+      if (vertical) { Reader.nextPage(); } else { Reader.prevPage(); }
+    } else if (x > w * 2 / 3) {
+      if (vertical) { Reader.prevPage(); } else { Reader.nextPage(); }
+    } else {
+      notify('tapCenter', {});
+    }
   });
 
   if (viewport.addEventListener) {

@@ -166,7 +166,8 @@ class ReaderBridge {
   root.style.setProperty('--padx', '${20 * s.marginScale}px');
   root.style.setProperty('--font', "${s.cssFontFamily}");
   document.body.style.background = '${t.cssBackground}';
-  r.setMode('${s.pageMode == ReaderPageMode.scroll ? 'scroll' : 'paged'}');
+  r.setVertical(${s.verticalMode});
+  r.setMode('${s.verticalMode || s.pageMode != ReaderPageMode.scroll ? 'paged' : 'scroll'}');
   r.layout();
 })();
 ''');

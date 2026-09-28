@@ -11,6 +11,7 @@ import '../../features/book_detail/book_detail_page.dart';
 import '../../features/bookshelf/bookshelf_page.dart';
 import '../../features/discover/discover_page.dart';
 import '../../features/library/import_page.dart';
+import '../../features/notes/notes_page.dart';
 import '../../features/reader/reader_page.dart';
 import '../../features/settings/settings_page.dart';
 import '../../features/shell/main_shell.dart';
@@ -73,6 +74,10 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
       GoRoute(
         path: '/settings',
         builder: (_, __) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: '/notes',
+        builder: (_, __) => const NotesPage(),
       ),
       // ---------------- AI 中心及其四类能力 ----------------
       GoRoute(

@@ -39,7 +39,7 @@ class StatsPage extends ConsumerWidget {
               const SizedBox(height: AppSpacing.lg),
               _weeklyCard(s),
               const SizedBox(height: AppSpacing.lg),
-              _entryList(context),
+              _entryList(context, s),
             ],
           ),
         ),
@@ -158,14 +158,18 @@ class StatsPage extends ConsumerWidget {
     );
   }
 
-  Widget _entryList(BuildContext context) => Card(
+  Widget _entryList(BuildContext context, ReadingStats stats) => Card(
         child: Column(
           children: <Widget>[
             ListTile(
-              leading: const Icon(Icons.bookmark_outlined),
+              leading: const Icon(Icons.edit_note),
               title: const Text('全部笔记与书签'),
+              subtitle: Text(
+                '${stats.noteCount} 条笔记 · ${stats.bookmarkCount} 个书签',
+                style: const TextStyle(fontSize: 12),
+              ),
               trailing: const Icon(Icons.chevron_right, size: 16),
-              onTap: () => context.push('/settings'),
+              onTap: () => context.push('/notes'),
             ),
             const Divider(height: 0.5),
             ListTile(

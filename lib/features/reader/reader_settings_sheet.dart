@@ -101,6 +101,25 @@ class ReaderSettingsSheet extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.md),
+            const Text('排版方向', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            const SizedBox(height: AppSpacing.xs),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('竖排（传统排版）'),
+              subtitle: const Text(
+                '文字自上而下、列自右向左；开启后固定使用翻页模式',
+                style: TextStyle(fontSize: 11),
+              ),
+              value: s.verticalMode,
+              onChanged: (bool v) => notifier.update(
+                s.copyWith(
+                  verticalMode: v,
+                  // 竖排必须翻页；关闭竖排时保持用户原有翻页偏好
+                  pageMode: v ? ReaderPageMode.paged : s.pageMode,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
             Row(
               children: <Widget>[
                 const Text('翻页方式', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
@@ -119,8 +138,10 @@ class ReaderSettingsSheet extends ConsumerWidget {
                     ),
                   ],
                   selected: <ReaderPageMode>{s.pageMode},
-                  onSelectionChanged: (Set<ReaderPageMode> v) =>
-                      notifier.update(s.copyWith(pageMode: v.first)),
+                  onSelectionChanged: s.verticalMode
+                      ? null
+                      : (Set<ReaderPageMode> v) =>
+                          notifier.update(s.copyWith(pageMode: v.first)),
                 ),
               ],
             ),
