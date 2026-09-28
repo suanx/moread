@@ -36,7 +36,7 @@ abstract final class AppDiagnostics {
         summary: details.exceptionAsString(),
         stack: details.stack?.toString() ?? '',
         library: details.library ?? '',
-        context: details.context?.toDescription() ?? '',
+        location: details.context?.toDescription() ?? '',
       );
     };
   }
@@ -49,13 +49,15 @@ class ErrorPanel extends StatelessWidget {
     required this.summary,
     required this.stack,
     this.library = '',
-    this.context = '',
+    this.location = '',
   });
 
   final String summary;
   final String stack;
   final String library;
-  final String context;
+
+  /// 出错的上下文位置描述（来自 FlutterErrorDetails.context）
+  final String location;
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +98,7 @@ class ErrorPanel extends StatelessWidget {
               const SizedBox(height: 8),
               _block('异常', summary.isEmpty ? '(空)' : summary),
               if (library.isNotEmpty) _block('来源', library),
-              if (context.isNotEmpty) _block('位置', context),
+              if (location.isNotEmpty) _block('位置', location),
               if (stackLines.isNotEmpty) _block('堆栈', stackLines.join('\n')),
               const SizedBox(height: 12),
               const Text(
@@ -111,7 +113,7 @@ class ErrorPanel extends StatelessWidget {
   }
 
   String get _fullText =>
-      '异常：$summary\n来源：$library\n位置：$context\n堆栈：\n$stack';
+      '异常：$summary\n来源：$library\n位置：$location\n堆栈：\n$stack';
 
   Widget _block(String title, String body) => Container(
         width: double.infinity,

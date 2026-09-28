@@ -199,7 +199,11 @@ class _AiChapterScopeState extends ConsumerState<AiChapterScope> {
                             ],
                             onChanged: (int? v) {
                               if (v == null) return;
-                              setState(() => _chapterIndex = v);
+                              // 记录用户的手动选择，避免被默认章节覆盖
+                              setState(() {
+                                _userPicked = true;
+                                _chapterIndex = v;
+                              });
                             },
                           ),
                         ),

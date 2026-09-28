@@ -22,7 +22,7 @@ Future<void> main() async {
         details.stack);
   };
 
-  runZonedGuarded(
+  unawaited(runZonedGuarded(
     () async {
       // 后台播放初始化（just_audio_background / audio_service）。
       // 该 init 依赖 AndroidManifest 中声明的 AudioService 服务组件：
@@ -47,5 +47,5 @@ Future<void> main() async {
     (Object error, StackTrace stack) {
       AppLogger.e('Zone', '未捕获异常', error, stack);
     },
-  );
+  ));
 }
