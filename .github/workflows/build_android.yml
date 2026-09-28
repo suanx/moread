@@ -6,7 +6,6 @@ name: build-android
 on:
   push:
     branches: [main]
-    tags: ['v*']
   workflow_dispatch:
     inputs:
       build_aab:
