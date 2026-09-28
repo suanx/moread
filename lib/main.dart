@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'core/error/error_screen.dart';
 import 'core/logging/app_logger.dart';
 import 'core/storage/app_paths.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 让 release 包中的渲染异常可见（否则只有一块灰色空屏，无法定位）
+  AppDiagnostics.install();
 
   // 捕获 Flutter 框架之外的异常，避免白屏。
   // 必须在任何可能抛错的 await 之前注册，否则异常无法被呈现。
