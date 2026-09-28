@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:moread/app.dart';
@@ -32,9 +33,26 @@ Book _book(String id, String title, {double progress = 0}) => Book(
       progress: progress,
     );
 
+/// 与生产环境一致的本地化配置。
+///
+/// 必须和生产 `MoreadApp` 保持相同：应用声明 locale: zh_CN，
+/// 若缺少 Global*Localizations 代理，MaterialLocalizations 会取到 null，
+/// TextField / NavigationBar 等控件首帧即抛异常（这正是灰屏故障的根因）。
+const List<LocalizationsDelegate<dynamic>> _delegates =
+    <LocalizationsDelegate<dynamic>>[
+  GlobalMaterialLocalizations.delegate,
+  GlobalWidgetsLocalizations.delegate,
+  GlobalCupertinoLocalizations.delegate,
+];
+
 Widget _wrap(List<Override> overrides, Widget child) => ProviderScope(
       overrides: overrides,
-      child: MaterialApp(home: child),
+      child: MaterialApp(
+        localizationsDelegates: _delegates,
+        supportedLocales: const <Locale>[Locale('zh', 'CN'), Locale('en', 'US')],
+        locale: const Locale('zh', 'CN'),
+        home: child,
+      ),
     );
 
 void main() {

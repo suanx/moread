@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -20,6 +21,14 @@ class MoreadApp extends ConsumerWidget {
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
       routerConfig: router,
+      // 必须提供本地化代理：应用声明了 locale: zh_CN，而 Flutter 默认代理只支持 en，
+      // 缺少代理时 MaterialLocalizations 取值为 null，任何依赖它的控件
+      // （TextField / NavigationBar / Tooltip 等）都会在首帧抛异常 → 灰屏。
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       supportedLocales: const <Locale>[
         Locale('zh', 'CN'),
         Locale('en', 'US'),
